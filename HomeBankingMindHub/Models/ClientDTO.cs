@@ -4,7 +4,8 @@ using HomeBankingMindHub.Models;
 
 
 
-namespace HomeBankingMindHub.dtos
+namespace HomeBankingMindHub.Models
+
 
 {
     public class ClientDTO
