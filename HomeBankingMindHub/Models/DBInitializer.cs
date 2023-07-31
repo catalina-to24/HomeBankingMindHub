@@ -6,48 +6,48 @@ namespace HomeBankingMindHub.Models
 {
     public class DBInitializer
 	{
-		public static void Initialize(HomeBankingContext context)
-		{
-			if (!context.Clients.Any())
-			{
-				//creamos los datos de prueba
-				var clients = new Client[]
-				{
-					new Client { 
-						
-						FirstName="Eduardo", 
-						LastName="Mendoza", 
-						Email = "eduardomendoza@gmail.com",  
-						Password="123456",},
+        public static void Initialize(HomeBankingContext context)
+        {
+            if (!context.Clients.Any())
+            {
+                //creamos los datos de prueba
+                var clients = new Client[]
+                {
+                    new Client {
 
-					new Client {
+                        FirstName="Eduardo",
+                        LastName="Mendoza",
+                        Email = "eduardomendoza@gmail.com",
+                        Password="123456",},
 
-						FirstName="Rafael",
-						LastName="Rodriguez",
-						Email = "rafarodriguez@gmail.com",
-						Password="123456",},
+                    new Client {
 
-					new Client
-					{
-						FirstName="Catalina",
-						LastName="Tempra",
-						Email="catatempra@gmail.com",
-						Password="654321",},
+                        FirstName="Rafael",
+                        LastName="Rodriguez",
+                        Email = "rafarodriguez@gmail.com",
+                        Password="123456",},
 
-				};
+                    new Client
+                    {
+                        FirstName="Catalina",
+                        LastName="Tempra",
+                        Email="catatempra@gmail.com",
+                        Password="654321",},
 
-				//cada vez que se agrega un cliente lo guarda 
-				foreach (Client client in clients)
-				{
-					context.Clients.Add(client);
-				}
+                };
+
+                //cada vez que se agrega un cliente lo guarda 
+                foreach (Client client in clients)
+                {
+                    context.Clients.Add(client);
+                }
 
                 //guardamos todo
                 context.SaveChanges();
             }
 
 
-             if (!context.Accounts.Any())
+            if (!context.Accounts.Any())
             {
                 int NumberAcount = 1;
                 var clients = context.Clients.ToList();
@@ -68,9 +68,10 @@ namespace HomeBankingMindHub.Models
             }
 
 
-           if (!context.Transactions.Any())
+            if (!context.Transactions.Any())
 
-            { var account1 = context.Accounts.FirstOrDefault(c => c.Number == "VIN001");
+            {
+                var account1 = context.Accounts.FirstOrDefault(c => c.Number == "VIN001");
 
                 if (account1 != null)
 
@@ -87,7 +88,7 @@ namespace HomeBankingMindHub.Models
 
                     foreach (Transaction transaction in transactions)
 
-                    {context.Transactions.Add(transaction);}
+                    { context.Transactions.Add(transaction); }
 
                     context.SaveChanges();
 
@@ -96,8 +97,98 @@ namespace HomeBankingMindHub.Models
                 }
 
             }
+            if (!context.Loans.Any())
+            {
+                //crearemos 3 prestamos Hipotecario, Personal y Automotriz
+                var loans = new Loan[]
+                {
+                    new Loan { Name = "Hipotecario", MaxAmount = 500000, Payments = "12,24,36,48,60" },
+                    new Loan { Name = "Personal", MaxAmount = 100000, Payments = "6,12,24" },
+                    new Loan { Name = "Automotriz", MaxAmount = 300000, Payments = "6,12,24,36" },
+                };
+
+                foreach (Loan loan in loans)
+                {
+                    context.Loans.Add(loan);
+                }
+
+                context.SaveChanges();
+
+                //ahora agregaremos los clientloan (Prestamos del cliente)
+                //usaremos al único cliente que tenemos y le agregaremos un préstamo de cada item
+                var client1 = context.Clients.FirstOrDefault(c => c.Email == "catatempra@gmail.com");
+                if (client1 != null)
+                {
+                    //ahora usaremos los 3 tipos de prestamos
+                    var loan1 = context.Loans.FirstOrDefault(l => l.Name == "Hipotecario");
+                    if (loan1 != null)
+                    {
+                        var clientLoan1 = new ClientLoan
+                        {
+                            Amount = 400000,
+                            ClientId = client1.Id,
+                            LoanId = loan1.Id,
+                            Payments = "60"
+                        };
+                        context.ClientLoans.Add(clientLoan1);
+                    }
+
+                    var loan2 = context.Loans.FirstOrDefault(l => l.Name == "Personal");
+                    if (loan2 != null)
+                    {
+                        var clientLoan2 = new ClientLoan
+                        {
+                            Amount = 50000,
+                            ClientId = client1.Id,
+                            LoanId = loan2.Id,
+                            Payments = "12"
+                        };
+                        context.ClientLoans.Add(clientLoan2);
+                    }
+
+                    var loan3 = context.Loans.FirstOrDefault(l => l.Name == "Automotriz");
+                    if (loan3 != null)
+                    {
+                        var clientLoan3 = new ClientLoan
+                        {
+                            Amount = 100000,
+                            ClientId = client1.Id,
+                            LoanId = loan3.Id,
+                            Payments = "24"
+                        };
+                        context.ClientLoans.Add(clientLoan3);
+                    }
+
+                    //guardamos todos los prestamos
+                    context.SaveChanges();
+
+                }
+                var client4 = context.Clients.FirstOrDefault(c => c.Email == "eduardomendoza@gmail.com");
+                if (client4 != null)
+                {
+                    //ahora usaremos los 3 tipos de prestamos
+                    var loan4 = context.Loans.FirstOrDefault(l => l.Name == "Hipotecario");
+                    if (loan4 != null)
+                    {
+                        var clientLoan4 = new ClientLoan
+                        {
+                            Amount = 400000,
+                            ClientId = client4.Id,
+                            LoanId = loan4.Id,
+                            Payments = "60"
+                        };
+                        context.ClientLoans.Add(clientLoan4);
+                    }
+                    context.SaveChanges();
 
 
+                }
+
+
+
+
+            }  
         }
     }
+
 }

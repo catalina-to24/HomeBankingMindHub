@@ -57,9 +57,35 @@ namespace HomeBankingMindHub.Controllers
 
                             CreationDate = ac.CreationDate,
 
-                            Number = ac.Number
+                            Number = ac.Number,
 
-                        }).ToList()
+                            //no es necesario desde este controlador (client)
+                            /*Transactions = ac.Transactions.Select(tr => new TransactionDTO 
+                            
+                            {
+                                Id = tr.Id,
+                                Type = tr.Type,
+                                Amount = tr.Amount,
+                                Description = tr.Description,
+                                Date = tr.Date,
+                            }).ToList(),*/
+
+
+
+
+                        }).ToList(),
+
+                        Loans = client.ClientLoans.Select
+
+                        (cl => new ClientLoanDTO
+                        {
+                            Id = cl.Id,
+                            LoanId = cl.LoanId,
+                            Name = cl.Loan.Name,
+                            Amount = cl.Amount,
+                            Payments = int.Parse(cl.Payments)
+                        }
+                        ).ToList()
 
                     };
 
@@ -124,7 +150,17 @@ namespace HomeBankingMindHub.Controllers
 
                         Number = ac.Number
 
-                    }).ToList()
+                    }).ToList(), Loans = client.ClientLoans.Select
+                    
+                        (cl => new ClientLoanDTO
+                    {
+                        Id = cl.Id,
+                        LoanId = cl.LoanId,
+                        Name = cl.Loan.Name,
+                        Amount = cl.Amount,
+                        Payments = int.Parse(cl.Payments)
+                    }   
+                        ).ToList()
 
                 };
 

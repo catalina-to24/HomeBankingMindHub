@@ -1,4 +1,3 @@
-Accounts.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,8 +19,8 @@ Accounts.html
             </div>
         </div>
         <div class="row">
-            <div v-for="account in clientInfo.accounts.$values" class="col-12 col-md-3 mt-2">
-                <a class="account-link" v-bind:href="'/account.html?id='+account.id">
+            <div v-for="account in accounts" class="col-12 col-md-3 mt-2">
+                <a class="account-link" v-bind:href="'http://localhost:15922/account.html?id='+account.id">
                     <div class="card border-0 account">
                         <div class="card-body">
                             <h5 class="card-title account-number">{{ account.number }}</h5>
@@ -32,10 +31,28 @@ Accounts.html
                 </a>
             </div>
         </div>
+        <div class="row mt-3">
+            <div class="col">
+                <h2 class="display-6">Loans</h2>
+                <span class="small" v-if="loans != null && loans.length <= 0">No loans</span>
+            </div>
+        </div>
+        <div class="row">
+            <div v-for="loan in loans" class="col-12 col-md-3 mt-2">
+                <div class="card border-0 loan">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ loan.name }}</h5>
+                        <p class="card-text"> payments: {{ loan.payments}}</p>
+                        <p class="text-center lead account-balance"> ${{ loan.amount }} </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js%22%3E</script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js%22%3E</script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js" integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf" crossorigin="anonymous"></script>
     <script src="js/accounts.js"></script>
 </body>
