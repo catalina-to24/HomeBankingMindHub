@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Principal;
 
 namespace HomeBankingMindHub.Controllers
 {
@@ -13,11 +15,14 @@ namespace HomeBankingMindHub.Controllers
     public class ClientsController : ControllerBase
     {
         private IClientRepository _clientRepository;
-
-        public ClientsController(IClientRepository clientRepository)
+        private AccountsController _accountsController;
+        private CardsController _cardsController;
+        public ClientsController(IClientRepository clientRepository, AccountsController accountsController, CardsController cardsController)
 
         {
             _clientRepository = clientRepository;
+            _accountsController = accountsController;
+            _cardsController = cardsController;
         }
 
         [HttpGet]
@@ -134,7 +139,7 @@ namespace HomeBankingMindHub.Controllers
 
                 if (client == null)
 
-                {  return NotFound();}
+                { return NotFound(); }
 
 
                 var clientDTO = new ClientDTO
@@ -161,26 +166,26 @@ namespace HomeBankingMindHub.Controllers
                         Number = ac.Number
 
                     }).ToList(), Credits = client.ClientLoans.Select
-                    
+
                         (cl => new ClientLoanDTO
-                    {
-                        Id = cl.Id,
-                        LoanId = cl.LoanId,
-                        Name = cl.Loan.Name,
-                        Amount = cl.Amount,
-                        Payments = int.Parse(cl.Payments)
-                    }   
+                        {
+                            Id = cl.Id,
+                            LoanId = cl.LoanId,
+                            Name = cl.Loan.Name,
+                            Amount = cl.Amount,
+                            Payments = int.Parse(cl.Payments)
+                        }
                         ).ToList(), Cards = client.Cards.Select(c => new CardDTO
-                    {
-                        Id = c.Id,
-                        CardHolder = c.CardHolder,
-                        Color = c.Color,
-                        Cvv = c.Cvv,
-                        FromDate = c.FromDate,
-                        Number = c.Number,
-                        ThruDate = c.ThruDate,
-                        Type = c.Type
-                    }).ToList()
+                        {
+                            Id = c.Id,
+                            CardHolder = c.CardHolder,
+                            Color = c.Color,
+                            Cvv = c.Cvv,
+                            FromDate = c.FromDate,
+                            Number = c.Number,
+                            ThruDate = c.ThruDate,
+                            Type = c.Type
+                        }).ToList()
 
                 };
 
@@ -202,11 +207,11 @@ namespace HomeBankingMindHub.Controllers
         public IActionResult GetCurrent()
         {
             try
-            {
+            {   //user= cualquier persona que este logueada en el back(propio del BackEnd)
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
                 if (email == string.Empty)
                 {
-                    return NotFound();
+                    return Forbid();
                 }
 
                 Client client = _clientRepository.FindByEmail(email);
@@ -284,6 +289,7 @@ namespace HomeBankingMindHub.Controllers
                 };
 
                 _clientRepository.Save(newClient);
+                _accountsController.Post(newClient.Id);
                 return Created("", newClient);
 
             }
@@ -293,6 +299,107 @@ namespace HomeBankingMindHub.Controllers
             }
         }
 
+        [HttpPost("current/accounts")] //crear hasta 3 cuentas 
+        
+        public IActionResult PostAccounts()
+        {
+            try
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+                if (email == string.Empty)
+                {
+                    Console.WriteLine("el mail del cliente no es valido");
+                    return NotFound();
+                }
+                Client client = _clientRepository.FindByEmail(email);
+                if (client == null)
+                {
+                    Console.WriteLine("el cliente es null");
+                    return NotFound();
+                }
+                if (client.Accounts.Count >2)
+                {
+                    Console.WriteLine("el cliente ya tiene mas de tres cuentas");
+                    return StatusCode(403, "Usted ya tiene mas de 3 cuentas");
+                }
 
+                var account = _accountsController.Post(client.Id); //creamos lacuenta 
+                if(account == null)
+                {
+                    return StatusCode(500, "Error al crear la cuenta");
+                }
+                return Created("", account);
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("current/cards")]
+        public IActionResult PostCards([FromBody] Card card)
+        {
+            try
+            {
+
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+                if (email == string.Empty)
+                {
+                    return NotFound();
+                }
+                Client client = _clientRepository.FindByEmail(email);
+
+                if (client == null)
+                {
+                    return NotFound();
+                }
+                if (card.Type != CardType.CREDIT.ToString() && card.Type != CardType.DEBIT.ToString())
+                {
+                    return BadRequest(" tipo de tarjetas no validas");
+                }
+                if(card.Color != CardColor.GOLD.ToString() && card.Color != CardColor.SILVER.ToString() && card.Color != CardColor.TITANIUM.ToString())
+                {
+                    return BadRequest(" color de tarjeta invalida");
+                }
+                int CardCount = client.Cards.Where(c => c.Type == card.Type).Count();
+                if (CardCount > 2)
+                {
+                    return StatusCode(403, "Ya tiene 3 tarjetas de del mismo tipo");
+                }
+                int sameCard = client.Cards.Where(c => c.Color == card.Color && c.Type == card.Type).Count();
+                if (sameCard == 1)
+                {
+                    return StatusCode(403, "Ya tiene una tarjetas del mismo tipo y color");
+                }
+
+                Card newCard = new Card
+                {
+                    CardHolder = client.FirstName + " " + client.LastName,
+                    Type = card.Type,
+                    Color = card.Color,
+                    Number = new Random().Next(1000, 9999).ToString() + ("-") +
+                             new Random().Next(1000, 9999).ToString() + ("-") +
+                             new Random().Next(1000, 9999).ToString() + ("-") +
+                             new Random().Next(1000, 9999).ToString(),
+                    Cvv = new Random().Next(100, 999),
+                    FromDate = DateTime.Now,
+                    ThruDate = DateTime.Now.AddYears(4),
+                    ClientId = client.Id,
+                };
+
+                var newCardDTO = _cardsController.Post(newCard);
+
+                if (newCard == null)
+                {
+                    return StatusCode(500, "Error al crear la tarjeta");
+                }
+                return Created("", newCardDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
     }
 }

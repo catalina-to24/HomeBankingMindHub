@@ -8,5 +8,8 @@ namespace HomeBankingMindHub.Repositories
         IEnumerable<Account> GetAllAccounts();
         void Save(Account account);
         Account FindById(long id);
+        IEnumerable<Account> GetAccountsByClient(long clientId);
+        string GetLastAccountNumber();
+        string GenerateNextAccountNumber();
     }
 }

@@ -1,10 +1,13 @@
 ﻿using HomeBankingMindHub.Models;
 using HomeBankingMindHub.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Security.Principal;
 
 namespace HomeBankingMindHub.Controllers
 {
@@ -13,11 +16,13 @@ namespace HomeBankingMindHub.Controllers
     public class AccountsController : ControllerBase
     {
         private IAccountRepository _accountRepository;
+        
 
         public AccountsController(IAccountRepository accountRepository)
 
         {
             _accountRepository = accountRepository;
+   
         }
 
         [HttpGet]
@@ -81,13 +86,11 @@ namespace HomeBankingMindHub.Controllers
 
         }
 
-
-
         [HttpGet("{id}")]
 
         public IActionResult Get(long id)
 
-        {
+           {
 
             try
 
@@ -137,5 +140,41 @@ namespace HomeBankingMindHub.Controllers
             }
 
         }
+
+        [HttpPost] 
+        
+        public IActionResult Post(long clientId)
+        {
+            try
+            {
+                string accountNumber = _accountRepository.GenerateNextAccountNumber();
+                
+                Account newAccount = new Account
+                {
+                    ClientId = clientId,
+                    CreationDate = DateTime.Now,
+                    Balance = 0,
+                    Number = accountNumber /*new Random().Next(100000, 999999).ToString()*/
+
+                };
+
+                _accountRepository.Save(newAccount);
+                AccountDTO newaccDTO = new AccountDTO
+                {
+                    Id = newAccount.Id,
+                    Balance = newAccount.Balance,
+                    CreationDate = newAccount.CreationDate,
+                    Number = newAccount.Number
+                };
+                return Created("", newaccDTO);
+                
+             
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
     }
 }
