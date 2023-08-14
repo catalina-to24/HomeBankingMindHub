@@ -7,6 +7,7 @@ using System;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Principal;
+using System.Text.RegularExpressions;
 
 namespace HomeBankingMindHub.Controllers
 {
@@ -17,12 +18,14 @@ namespace HomeBankingMindHub.Controllers
         private IClientRepository _clientRepository;
         private AccountsController _accountsController;
         private CardsController _cardsController;
-        public ClientsController(IClientRepository clientRepository, AccountsController accountsController, CardsController cardsController)
+        private IAccountRepository _accountRepository;
+        public ClientsController(IClientRepository clientRepository, AccountsController accountsController, CardsController cardsController, IAccountRepository accountRepository)
 
         {
             _clientRepository = clientRepository;
             _accountsController = accountsController;
             _cardsController = cardsController;
+            _accountRepository = accountRepository;
         }
 
         [HttpGet]
@@ -299,6 +302,32 @@ namespace HomeBankingMindHub.Controllers
             }
         }
 
+        [HttpGet("current/accounts")]
+        public IActionResult Getaccounts()
+        {
+            try
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+                if (email == string.Empty)
+                {
+                    return Forbid();
+                }
+
+                Client client = _clientRepository.FindByEmail(email);
+               if (client == null)
+                {
+                    return NotFound();
+                }
+
+                var accounts = client.Accounts;
+                return Ok(accounts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
         [HttpPost("current/accounts")] //crear hasta 3 cuentas 
         
         public IActionResult PostAccounts()
@@ -395,6 +424,31 @@ namespace HomeBankingMindHub.Controllers
                     return StatusCode(500, "Error al crear la tarjeta");
                 }
                 return Created("", newCardDTO);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+        [HttpGet("current/cards")]
+        public IActionResult GetCards()
+        {
+            try
+            {
+                string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
+                if (email == string.Empty)
+                {
+                    return Forbid();
+                }
+
+                Client client = _clientRepository.FindByEmail(email);
+                if (client == null)
+                {
+                    return NotFound();
+                }
+
+                var cards = client.Cards;
+                return Ok(cards);
             }
             catch (Exception ex)
             {

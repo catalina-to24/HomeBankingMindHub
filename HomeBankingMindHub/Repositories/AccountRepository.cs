@@ -39,7 +39,16 @@ namespace HomeBankingMindHub.Repositories
 
             public void Save(Account account)
             {
-                Create(account);
+                if (account.Id == 0)
+                { 
+                    Create(account);
+
+                }
+                else
+                {
+                    Update(account);
+                }
+
                 SaveChanges();
             }
 
@@ -70,6 +79,14 @@ namespace HomeBankingMindHub.Repositories
 
             return "VIN-" + nextNumber.ToString("D6"); // D6 asegura 6 dígitos con ceros iniciales
         }
+
+        public Account FindByNumber(string number)
+        {
+            return FindByCondition(acc => acc.Number.ToUpper() == number.ToUpper())
+            .Include(acc => acc.Transactions)
+            .FirstOrDefault();
+        }
+
 
     }
 }

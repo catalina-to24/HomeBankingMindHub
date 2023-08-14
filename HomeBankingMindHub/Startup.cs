@@ -35,9 +35,12 @@ namespace HomeBankingMindHub
             services.AddDbContext<HomeBankingContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("HomeBankingConexion"))); //agregamos el contexto de la base de datos
             services.AddScoped<IClientRepository, ClientRepository>(); //agregamos el repositorio
             services.AddScoped<IAccountRepository, AccountRepository>(); //agregamos el repositorio
-            services.AddScoped<ICardRepository, CardRepository>();
-            services.AddScoped<AccountsController>();
-            services.AddScoped<CardsController>();
+            services.AddScoped<ICardRepository, CardRepository>();//agregamos el repositorio
+            services.AddScoped<ITransactionRepository, TransactionRepository>();//agregamos el repositorio
+            services.AddScoped<AccountsController>();//agregamos controladores
+            services.AddScoped<CardsController>(); //agregamos controladores
+            services.AddScoped<TransactionsController>();
+            //services.AddScoped<ClientsController>();
             
             //autenticacion cuando el navegador envia una peticion para acceder a algun recurso protegido del navegador web
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

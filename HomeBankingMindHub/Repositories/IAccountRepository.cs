@@ -11,5 +11,6 @@ namespace HomeBankingMindHub.Repositories
         IEnumerable<Account> GetAccountsByClient(long clientId);
         string GetLastAccountNumber();
         string GenerateNextAccountNumber();
+        Account FindByNumber(string number);
     }
 }
