@@ -13,6 +13,7 @@ namespace HomeBankingMindHub.Repositories
         }
         public void Save(ClientLoan clientLoan)
         {
+            Create(clientLoan);
             SaveChanges();
         }
     }

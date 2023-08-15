@@ -47,7 +47,7 @@ namespace HomeBankingMindHub.Controllers
                     return NotFound();
                 }
 
-                //if(loanApplicationDTO.LoanId is )
+                
                 
                 var loan = _loanRepository.FindById(loanApplicationDTO.LoanId);
                 if (loan == null)
@@ -58,17 +58,17 @@ namespace HomeBankingMindHub.Controllers
                 {
                     return BadRequest("Por favor complete todos los campos");
                 }
-                if (loanApplicationDTO.Type != LoanType.HIPOTECARIO.ToString() && loanApplicationDTO.Type != LoanType.PERSONAL.ToString() && loanApplicationDTO.Type != LoanType.AUTOMOTRIZ.ToString())
+                /*if (loanApplicationDTO.Type != LoanType.HIPOTECARIO.ToString() && loanApplicationDTO.Type != LoanType.PERSONAL.ToString() && loanApplicationDTO.Type != LoanType.AUTOMOTRIZ.ToString())
                 {
                     return BadRequest("ingrese un tipo de prestamo valido");
-                }
+                }*/
                 if (loanApplicationDTO.Amount > loan.MaxAmount)
                 {
                     return BadRequest("El monto ingresado supera el monto maximo permitido");
                 }
-                if (!loanApplicationDTO.Payments.Contains(loan.Payments))
+                if (!loan.Payments.Contains(loanApplicationDTO.Payments))
                 {
-                    return BadRequest("seleccione cuotas por favor");
+                    return BadRequest("seleccione las cuotas correctas por favor");
                 }
 
                 var account = _accountRepository.FindByNumber(loanApplicationDTO.ToAccountNumber);
