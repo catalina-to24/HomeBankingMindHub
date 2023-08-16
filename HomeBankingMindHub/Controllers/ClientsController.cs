@@ -286,8 +286,8 @@ namespace HomeBankingMindHub.Controllers
                 {
                     return StatusCode(400, "El apellido no puede tener caracteres");
                 }
-                //mail no valido
-                if (!(Regex.IsMatch(client.Email, @"^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+.)+([a-zA-Z0-9]{2,4})+$")))
+                //mail no valido  
+                if (!(Regex.IsMatch(client.Email, @"^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$")))
                 {
 
                     return StatusCode(400, "Email invalido");
@@ -297,10 +297,10 @@ namespace HomeBankingMindHub.Controllers
                 {
                     return StatusCode(400, "La contrasenia debe tener al menos 8 caracteres");
                 }
-
-                if (!Regex.IsMatch(client.Password, @"^(?=.[a-z])(?=.[A-Z])(?=.*\d).+$"))
+ 
+                if (!Regex.IsMatch(client.Password, @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$"))
                 {
-                    return StatusCode(400, "La contrasenia debe tener al menos de una letra mayuscula, una minuscula y un numero ");
+                    return StatusCode(400, "la contrasenia debe tener mayuscula, minuscula y un numero");
                 }
                 //buscamos si ya existe el usuario
                 Client user = _clientRepository.FindByEmail(client.Email);
