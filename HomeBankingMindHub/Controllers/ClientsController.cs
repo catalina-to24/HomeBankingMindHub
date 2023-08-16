@@ -276,38 +276,38 @@ namespace HomeBankingMindHub.Controllers
                     return StatusCode(403, "datos inválidos");
                 if (client.FirstName.Length < 3 || client.LastName.Length < 3)
                 {
-                    return StatusCode(400, "el nombre y el apellido debe tener mas de tres letras");
+                    return StatusCode(400, "El nombre y el apellido debe tener mas de tres letras");
                 }
                 if (!Regex.IsMatch(client.FirstName, @"^[a-zA-Z\s]+$"))
                 {
-                    return StatusCode(400, "el nombre no puede tener caracteres");
+                    return StatusCode(400, "El nombre no puede tener caracteres");
                 }
                 if (!Regex.IsMatch(client.LastName, @"^[a-zA-Z\s]+$"))
                 {
-                    return StatusCode(400, "el apellido no puede tener caracteres");
+                    return StatusCode(400, "El apellido no puede tener caracteres");
                 }
                 //mail no valido
                 if (!(Regex.IsMatch(client.Email, @"^([a-zA-Z0-9_.+-])+@(([a-zA-Z0-9-])+.)+([a-zA-Z0-9]{2,4})+$")))
                 {
 
-                    return StatusCode(400, "email invalido");
+                    return StatusCode(400, "Email invalido");
                 }
 
                 if (client.Password.Length < 8)
                 {
-                    return StatusCode(400, "la contrasenia debe tener al menos 8 caracteres");
+                    return StatusCode(400, "La contrasenia debe tener al menos 8 caracteres");
                 }
 
                 if (!Regex.IsMatch(client.Password, @"^(?=.[a-z])(?=.[A-Z])(?=.*\d).+$"))
                 {
-                    return StatusCode(400, "la contrasenia debe tener al menos de una letra mayuscula, una minuscula y un numero ");
+                    return StatusCode(400, "La contrasenia debe tener al menos de una letra mayuscula, una minuscula y un numero ");
                 }
                 //buscamos si ya existe el usuario
                 Client user = _clientRepository.FindByEmail(client.Email);
 
                 if (user != null)
                 {
-                    return StatusCode(403, "Email está en uso");
+                    return StatusCode(403, "Email esta en uso");
                 }
 
                 Client newClient = new Client
@@ -364,18 +364,18 @@ namespace HomeBankingMindHub.Controllers
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
                 if (email == string.Empty)
                 {
-                    Console.WriteLine("el mail del cliente no es valido");
+                    Console.WriteLine("El mail del cliente no es valido");
                     return NotFound();
                 }
                 Client client = _clientRepository.FindByEmail(email);
                 if (client == null)
                 {
-                    Console.WriteLine("el cliente es null");
+                    Console.WriteLine("El cliente es null");
                     return NotFound();
                 }
                 if (client.Accounts.Count >2)
                 {
-                    Console.WriteLine("el cliente ya tiene mas de tres cuentas");
+                    Console.WriteLine("El cliente ya tiene mas de tres cuentas");
                     return StatusCode(403, "Usted ya tiene mas de 3 cuentas");
                 }
 
@@ -412,11 +412,11 @@ namespace HomeBankingMindHub.Controllers
                 }
                 if (card.Type != CardType.CREDIT.ToString() && card.Type != CardType.DEBIT.ToString())
                 {
-                    return BadRequest(" tipo de tarjetas no validas");
+                    return BadRequest(" Tipo de tarjetas no validas");
                 }
                 if(card.Color != CardColor.GOLD.ToString() && card.Color != CardColor.SILVER.ToString() && card.Color != CardColor.TITANIUM.ToString())
                 {
-                    return BadRequest(" color de tarjeta invalida");
+                    return BadRequest(" Color de tarjeta invalida");
                 }
                 int CardCount = client.Cards.Where(c => c.Type == card.Type).Count();
                 if (CardCount > 2)

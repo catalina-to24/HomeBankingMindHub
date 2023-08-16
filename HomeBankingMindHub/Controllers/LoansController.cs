@@ -47,30 +47,28 @@ namespace HomeBankingMindHub.Controllers
                     return NotFound();
                 }
 
-                
-                
                 var loan = _loanRepository.FindById(loanApplicationDTO.LoanId);
                 if (loan == null)
                 {
-                    return Forbid();
+                    return BadRequest("El tipo de prestamo ingresado es incorrecto");
                 }
                 if (string.IsNullOrEmpty(loanApplicationDTO.Payments) || loanApplicationDTO.Amount <= 0 ||  string.IsNullOrEmpty(loanApplicationDTO.ToAccountNumber) || loanApplicationDTO.Payments == "0")
                 {
                     return BadRequest("Por favor complete todos los campos");
                 }
-                /*if (loanApplicationDTO.Type != LoanType.HIPOTECARIO.ToString() && loanApplicationDTO.Type != LoanType.PERSONAL.ToString() && loanApplicationDTO.Type != LoanType.AUTOMOTRIZ.ToString())
-                {
-                    return BadRequest("ingrese un tipo de prestamo valido");
-                }*/
+
                 if (loanApplicationDTO.Amount > loan.MaxAmount)
                 {
                     return BadRequest("El monto ingresado supera el monto maximo permitido");
                 }
-                if (!loan.Payments.Contains(loanApplicationDTO.Payments))
-                {
-                    return BadRequest("seleccione las cuotas correctas por favor");
-                }
 
+                var paymentList = loan.Payments.Split(',');
+
+                if (!paymentList.Contains(loanApplicationDTO.Payments))
+                { 
+                    return BadRequest("Seleccione las cuotas correctas por favor");
+                }
+               
                 var account = _accountRepository.FindByNumber(loanApplicationDTO.ToAccountNumber);
 
                 if (account == null)
@@ -80,7 +78,7 @@ namespace HomeBankingMindHub.Controllers
                 var sameAcc = client.Accounts.Where(acc => acc.Number == account.Number).FirstOrDefault();
                 if (sameAcc == null)
                 {
-                    return BadRequest("la cuenta de destino no coincide");
+                    return BadRequest("La cuenta de destino no coincide");
                 }
 
                 account.Balance += loanApplicationDTO.Amount;
